@@ -2,16 +2,28 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, UserRound, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { authClient, useSession } from "@/lib/auth-client";
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
 
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Browse Startups", href: "/startups" },
     { label: "Browse Opportunities", href: "/opportunities" },
   ];
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    setIsOpen(false);
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white">
@@ -44,7 +56,7 @@ const Navbar = ({ user }) => {
           {/* DESKTOP AUTH */}
           <div className="hidden md:flex items-center gap-3 text-sm">
 
-            {user ? (
+            {!isPending && user ? (
               <>
                 <Link
                   href="/dashboard"
@@ -54,14 +66,23 @@ const Navbar = ({ user }) => {
                 </Link>
 
                 <Link
-                  href="/profile"
+                  href="/profile/update"
                   className="px-4 py-2 border rounded-lg hover:bg-gray-100"
                 >
-                  Profile
+                  <span className="inline-flex items-center gap-2">
+                    <UserRound className="h-4 w-4" />
+                    Profile
+                  </span>
                 </Link>
 
-                <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                  Logout
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </span>
                 </button>
               </>
             ) : (
@@ -122,7 +143,7 @@ const Navbar = ({ user }) => {
             {/* AUTH SECTION */}
             <div className="space-y-2 pt-2">
 
-              {user ? (
+              {!isPending && user ? (
                 <>
                   <Link
                     href="/dashboard"
@@ -133,14 +154,17 @@ const Navbar = ({ user }) => {
                   </Link>
 
                   <Link
-                    href="/profile"
+                    href="/profile/update"
                     onClick={() => setIsOpen(false)}
                     className="block px-3 py-2 rounded-lg hover:bg-gray-100"
                   >
                     Profile
                   </Link>
 
-                  <button className="w-full px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
                     Logout
                   </button>
                 </>
