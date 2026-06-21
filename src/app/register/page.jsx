@@ -30,6 +30,7 @@ export default function SignUpPage() {
       password: formData.get("password"),
       image: formData.get("image"),
       role: formData.get("role"),
+      plan: "free"
     };
 
     console.log("SENDING USER:", user);

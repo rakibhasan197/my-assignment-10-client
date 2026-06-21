@@ -1,15 +1,17 @@
 import Banner from "@/components/Banner";
-import Footer from "@/components/Footer";
+import FeaturedOpportunities from "@/components/FeaturedOpportunities";
+import FeaturedStartups from "@/components/FeaturedStartups";
 import StartupStats from "@/components/StartupStats";
 import WhyJoin from "@/components/WhyJoin";
-import Image from "next/image";
 
 export default function Home() {
   return (
     <div>
       <Banner></Banner>
-    <WhyJoin></WhyJoin>
-    <StartupStats></StartupStats>
+      <FeaturedStartups></FeaturedStartups>
+      <FeaturedOpportunities></FeaturedOpportunities>
+      <WhyJoin></WhyJoin>
+      <StartupStats></StartupStats>
     </div>
   );
 }
