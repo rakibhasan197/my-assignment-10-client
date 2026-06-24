@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
 
-
+import Overview from "@/components/dashboard/collaborator/Overview";
 import BrowseOpportunities from "@/components/dashboard/collaborator/BrowseOpportunities";
-import ApplyOpportunity from "@/components/dashboard/collaborator/ApplyOpportunity";
 import MyApplications from "@/components/dashboard/collaborator/MyApplications";
 import CollaboratorProfile from "@/components/dashboard/collaborator/CollaboratorProfile";
 import PremiumPayment from "@/components/dashboard/collaborator/PremiumPayment";
@@ -15,7 +14,7 @@ export default function CollaboratorDashboard() {
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
-  const [activeTab, setActiveTab] = useState("browse");
+  const [activeTab, setActiveTab] = useState("overview");
 
   if (isPending) return <p>Loading...</p>;
 
@@ -23,25 +22,19 @@ export default function CollaboratorDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-
-      {/* Sidebar Component */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         user={user}
       />
 
-      {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
-
+        {activeTab === "overview" && <Overview />}
         {activeTab === "browse" && <BrowseOpportunities />}
-        {activeTab === "apply" && <ApplyOpportunity />}
         {activeTab === "applications" && <MyApplications />}
         {activeTab === "profile" && <CollaboratorProfile />}
         {activeTab === "premium" && <PremiumPayment />}
-
       </main>
-
     </div>
   );
 }

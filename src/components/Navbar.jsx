@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { LogOut, Menu, UserRound, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -74,6 +75,14 @@ const Navbar = () => {
                     Profile
                   </span>
                 </Link>
+
+                <Image
+                  src={user?.image || "/default-avatar.png"}
+                  alt={user?.name || "User"}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover border"
+                />
 
                 <button
                   onClick={handleLogout}

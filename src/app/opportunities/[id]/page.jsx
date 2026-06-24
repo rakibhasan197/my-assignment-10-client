@@ -64,7 +64,7 @@ export default function OpportunityDetailsPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Application Submitted Successfully!");
+        toast.success("Application Submitted Successfully!");
 
         setPortfolioLink("");
         setMotivationMessage("");

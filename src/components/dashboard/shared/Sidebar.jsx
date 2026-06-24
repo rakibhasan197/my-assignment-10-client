@@ -2,7 +2,6 @@
 
 import {
   BriefcaseBusiness,
-  FileText,
   Users,
   User,
   CreditCard,
@@ -10,26 +9,48 @@ import {
 } from "lucide-react";
 
 const tabs = [
-  { id: "browse", label: "Browse Opportunities", icon: BriefcaseBusiness },
-  { id: "apply", label: "Apply", icon: FileText },
-  { id: "applications", label: "My Applications", icon: Users },
-  { id: "profile", label: "Profile", icon: User },
-  { id: "premium", label: "Premium", icon: CreditCard },
+  {
+    id: "overview",
+    label: "Overview",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "browse",
+    label: "Browse Opportunities",
+    icon: BriefcaseBusiness,
+  },
+  {
+    id: "applications",
+    label: "My Applications",
+    icon: Users,
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: User,
+  },
+  {
+    id: "premium",
+    label: "Premium",
+    icon: CreditCard,
+  },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, user }) {
   return (
     <aside className="w-72 border-r bg-white flex flex-col">
-
       {/* Header */}
       <div className="p-5 border-b flex items-center gap-2">
         <LayoutDashboard className="text-indigo-600" />
-        <h1 className="font-bold text-lg">Dashboard</h1>
+        <h1 className="font-bold text-lg">
+          Collaborator Dashboard
+        </h1>
       </div>
 
       {/* User */}
       <div className="p-4 border-b text-sm text-gray-600">
-        Welcome, <br />
+        Welcome,
+        <br />
         <span className="font-semibold text-gray-900">
           {user?.name || user?.email}
         </span>
@@ -37,7 +58,6 @@ export default function Sidebar({ activeTab, setActiveTab, user }) {
 
       {/* Menu */}
       <nav className="flex-1 p-3 space-y-1">
-
         {tabs.map((tab) => {
           const Icon = tab.icon;
 
@@ -56,9 +76,7 @@ export default function Sidebar({ activeTab, setActiveTab, user }) {
             </button>
           );
         })}
-
       </nav>
-
     </aside>
   );
 }
