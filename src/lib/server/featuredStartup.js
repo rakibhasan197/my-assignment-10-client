@@ -25,10 +25,19 @@ export const getFeaturedOpportunities = async () => {
   return res.json();
 };
 
-export const getAllOpportunities = async () => {
-  const res = await fetch("http://localhost:8000/api/opportunities", {
-    cache: "no-store",
-  });
+export const getAllOpportunities = async (page = 1) => {
+  const res = await fetch(
+    `http://localhost:8000/api/opportunities?page=${page}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch opportunities");
+  }
 
   return res.json();
 };
+
+

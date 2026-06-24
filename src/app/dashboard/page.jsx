@@ -17,8 +17,10 @@ export default function DashboardPage() {
       router.push("/dashboard/founder");
     } else if (role === "collaborator") {
       router.push("/dashboard/collaborator");
-    } else {
-      router.push("/");
+    } else if(role === "admin") {
+      router.push("/dashboard/admin");
+    } else{
+      router.push("/")
     }
   }, [session, isPending, router]);
 

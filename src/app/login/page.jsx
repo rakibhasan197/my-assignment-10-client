@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { FcGoogle } from "react-icons/fc";
+import { Button } from "@heroui/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,6 +32,12 @@ export default function LoginPage() {
     router.push("/dashboard");
     router.refresh();
   };
+
+  const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+      provider: "google"
+    })
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
@@ -80,6 +88,14 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
+        <Button
+          onClick={handleGoogleLogin}
+          type="button"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <FcGoogle size={20} />
+          Continue with Google
+        </Button>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Loader2, AlertCircle, CheckCircle2, Upload } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { apiGet, apiPost } from "@/lib/api";
+import { imageUploader } from "@/lib/imageUpload";
 
 export default function CollaboratorProfile() {
   const { data: session } = useSession();
@@ -49,16 +50,29 @@ export default function CollaboratorProfile() {
     }
   };
 
-  const handleImage = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-      setProfile((prev) => ({ ...prev, image: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  };
+ const handleImage = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setSaving(true);
+    setError("");
+
+    const imageData = await imageUploader(file);
+
+    setImagePreview(imageData.url);
+
+    setProfile((prev) => ({
+      ...prev,
+      image: imageData.url,
+    }));
+  } catch (err) {
+    console.error(err);
+    setError("Image upload failed");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();

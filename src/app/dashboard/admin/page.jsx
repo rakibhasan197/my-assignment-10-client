@@ -1,11 +1,9 @@
-import React from 'react';
+"use client";
 
-const AdminHomePage = () => {
-  return (
-    <div>
-      <h2>homepage</h2>
-    </div>
-  );
-};
+import { useState } from "react";
 
-export default AdminHomePage;
+import Overview from "@/components/dashboard/admin/Overview";
+
+export default function AdminPage() {
+  return <Overview />;
+}

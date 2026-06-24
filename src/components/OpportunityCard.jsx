@@ -45,10 +45,10 @@ const OpportunityCard = ({ opportunity }) => {
         </p>
 
         <Link
-          href={`/opportunity/${opportunity._id}`}
+          href={`/opportunities/${opportunity._id}`}
           className="mt-4 inline-block w-full text-center bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition"
         >
-          Apply Now
+          View Details
         </Link>
 
       </div>

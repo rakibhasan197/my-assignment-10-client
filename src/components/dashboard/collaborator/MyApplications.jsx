@@ -1,35 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { apiGet } from "@/lib/api";
 
-const statusMeta = {
-  Pending: { color: "bg-yellow-50 text-yellow-700 border-yellow-200", icon: Clock },
-  Accepted: { color: "bg-green-50 text-green-700 border-green-200", icon: CheckCircle2 },
-  Rejected: { color: "bg-red-50 text-red-700 border-red-200", icon: XCircle },
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+const statusColors = {
+  Pending: { bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-200", icon: Clock },
+  Accepted: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200", icon: CheckCircle2 },
+  Rejected: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", icon: XCircle },
 };
 
 export default function MyApplications() {
   const { data: session } = useSession();
   const user = session?.user;
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (user?.email) fetchApplications();
+    if (user?.email) {
+      fetchApplications();
+    }
   }, [user]);
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       setError("");
-      const data = await apiGet(`/api/applications?email=${encodeURIComponent(user.email)}`);
+      const email = encodeURIComponent(user?.email);
+      const res = await fetch(`${API_URL}/api/applications?email=${email}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch applications");
+      }
+
       setApplications(data.applications || []);
     } catch (err) {
       setError(err.message);
+      console.error("Error fetching applications:", err);
     } finally {
       setLoading(false);
     }
@@ -37,8 +49,8 @@ export default function MyApplications() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
       </div>
     );
   }
@@ -46,53 +58,61 @@ export default function MyApplications() {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          <AlertCircle className="inline mr-2 h-4 w-4 align-text-bottom" />
-          {error}
+        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+          <AlertCircle className="h-5 w-5 text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
       {applications.length === 0 ? (
-        <div className="rounded-3xl border border-gray-200 bg-gray-50 p-12 text-center text-gray-600">
-          No applications yet
+        <div className="rounded-lg border border-gray-200 bg-gray-50 py-12 text-center">
+          <p className="text-gray-600">No applications yet</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Opportunity
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Startup
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Applied Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {applications.map((app) => {
-                const meta = statusMeta[app.status] || statusMeta.Pending;
-                const Icon = meta.icon;
+                const statusConfig = statusColors[app.status] || statusColors.Pending;
+                const StatusIcon = statusConfig.icon;
+
                 return (
-                  <tr key={app._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{app.opportunity_name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{app.startup_name}</td>
+                  <tr
+                    key={app._id}
+                    className="border-b border-gray-200 transition hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {app.opportunity_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {app.startup_name}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {new Date(app.applied_date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${meta.color}`}
+                      <div
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium w-fit ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}
                       >
-                        <Icon className="h-3.5 w-3.5" />
+                        <StatusIcon className="h-4 w-4" />
                         {app.status}
-                      </span>
+                      </div>
                     </td>
                   </tr>
                 );

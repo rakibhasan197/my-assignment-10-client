@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Search, Loader2, AlertCircle } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function BrowseOpportunities() {
   const [opportunities, setOpportunities] = useState([]);
@@ -10,35 +11,38 @@ export default function BrowseOpportunities() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterWorkType, setFilterWorkType] = useState("");
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
   // ✅ FETCH DATA (FIXED)
-  useEffect(() => {
-    const fetchOpportunities = async () => {
-      try {
-        setLoading(true);
-        setError("");
+useEffect(() => {
+  const fetchOpportunities = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const res = await fetch(
-          "http://localhost:8000/api/opportunities"
-        );
+      const res = await fetch(
+        `http://localhost:8000/api/opportunities?page=${page}&limit=5`
+      );
 
-        if (!res.ok) {
-          throw new Error("Failed to load opportunities");
-        }
-
-        const data = await res.json();
-
-        setOpportunities(Array.isArray(data) ? data : data?.data || []);
-      } catch (err) {
-        setError(err.message || "Something went wrong");
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error("Failed to load opportunities");
       }
-    };
 
-    fetchOpportunities();
-  }, []);
+      const data = await res.json();
 
+      setOpportunities(data.opportunities || []);
+      setTotalPages(data.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchOpportunities();
+}, [page]);
   // ✅ FILTER LOGIC
   const filtered = opportunities.filter((opp) => {
     const query = searchTerm.toLowerCase();
@@ -156,6 +160,45 @@ export default function BrowseOpportunities() {
           ))}
         </div>
       )}
+      {totalPages > 1 && (
+  <div className="mt-8 flex justify-center gap-2">
+    <button
+      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+      disabled={page === 1}
+      className="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    {[...Array(totalPages)].map((_, index) => {
+      const pageNumber = index + 1;
+
+      return (
+        <button
+          key={pageNumber}
+          onClick={() => setPage(pageNumber)}
+          className={`rounded-lg px-4 py-2 ${
+            page === pageNumber
+              ? "bg-indigo-600 text-white"
+              : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {pageNumber}
+        </button>
+      );
+    })}
+
+    <button
+      onClick={() =>
+        setPage((prev) => Math.min(prev + 1, totalPages))
+      }
+      disabled={page === totalPages}
+      className="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+)}
 
       {/* MODAL */}
       {selectedOpportunity && (

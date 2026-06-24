@@ -15,6 +15,7 @@ import {
   Select,
   TextField,
 } from "@heroui/react";
+import { imageUploader } from "@/lib/imageUpload";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -23,15 +24,18 @@ export default function SignUpPage() {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
+    const imageFile = formData.get("image");
+const image = await imageUploader(imageFile);
 
     const user = {
       name: formData.get("name"),
       email: formData.get("email"),
       password: formData.get("password"),
-      image: formData.get("image"),
+      image: image.url,
       role: formData.get("role"),
-      plan: "free"
+      plan: "isBlocked"
     };
+
 
     console.log("SENDING USER:", user);
 
@@ -81,9 +85,9 @@ export default function SignUpPage() {
               </TextField>
 
               {/* IMAGE */}
-              <TextField name="image">
+              <TextField>
                 <Label>Profile Image URL</Label>
-                <Input placeholder="https://i.ibb.co/xxx.jpg" variant="secondary" />
+                <input name="image" type="file" placeholder="https://i.ibb.co/xxx.jpg" variant="secondary" />
               </TextField>
 
               {/* PASSWORD */}
