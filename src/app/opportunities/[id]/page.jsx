@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import ApplyOpportunityModal from "@/components/ApplyOpportunityModal";
+import Image from "next/image";
 
 export default function OpportunityDetailsPage() {
   const { id } = useParams();
+  const { data: session } = useSession();
 
   const [opportunity, setOpportunity] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [portfolioLink, setPortfolioLink] = useState("");
+  const [motivationMessage, setMotivationMessage] = useState("");
 
   useEffect(() => {
     const fetchOpportunity = async () => {
@@ -31,6 +38,44 @@ export default function OpportunityDetailsPage() {
     }
   }, [id]);
 
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const applicationData = {
+        opportunity_id: opportunity._id,
+        applicant_email: session?.user?.email,
+        portfolio_link: portfolioLink,
+        motivation_message: motivationMessage,
+        status: "Pending",
+      };
+
+      const res = await fetch(
+        "http://localhost:8000/api/applications",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(applicationData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Application Submitted Successfully!");
+
+        setPortfolioLink("");
+        setMotivationMessage("");
+
+        console.log(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -50,10 +95,12 @@ export default function OpportunityDetailsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
 
-      <img
+      <Image
         src={opportunity.image}
         alt={opportunity.role_title}
         className="w-full h-80 object-cover rounded-2xl"
+        height={500}
+        width={800}
       />
 
       <div className="mt-6">
@@ -92,11 +139,18 @@ export default function OpportunityDetailsPage() {
           </p>
         </div>
 
-        <button
-          className="mt-8 bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700"
-        >
-          Apply Now
-        </button>
+        <div className="mt-8">
+          <ApplyOpportunityModal
+            opportunity={opportunity}
+            session={session}
+            portfolioLink={portfolioLink}
+            setPortfolioLink={setPortfolioLink}
+            motivationMessage={motivationMessage}
+            setMotivationMessage={setMotivationMessage}
+            handleApplySubmit={handleApplySubmit}
+          />
+        </div>
+
       </div>
     </div>
   );
