@@ -1,6 +1,8 @@
 
 import { getFeaturedOpportunities } from "@/lib/server/featuredStartup";
 import OpportunityCard from "./OpportunityCard";
+import Link from "next/link";
+import { Button } from "@heroui/react";
 
 const FeaturedOpportunities = async () => {
   const opportunities = await getFeaturedOpportunities();
@@ -25,6 +27,10 @@ const FeaturedOpportunities = async () => {
         </div>
          
       </div>
+
+      <Link href={'/opportunities'}>
+      <Button variant="secondary" className={'flex justify-center text-center mx-auto'}>View All Opportunities</Button>
+      </Link>
     </section>
   );
 };
