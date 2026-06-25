@@ -37,7 +37,7 @@ const FeaturedOpportunityClient = ({ opportunities = [],totalPages = 1,
         Current Page: {page}
       </h1>
 
-      {/* Search & Filter */}
+      
       <div className="mb-8 flex flex-col md:flex-row gap-4">
         <input
           type="text"
@@ -64,7 +64,7 @@ const FeaturedOpportunityClient = ({ opportunities = [],totalPages = 1,
         </select>
       </div>
 
-      {/* Cards */}
+     
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredOpportunities.length > 0 ? (
           filteredOpportunities.map((opportunity) => (
