@@ -14,6 +14,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { imageUploader } from "@/lib/imageUpload";
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -126,18 +128,35 @@ export default function FounderHome() {
   };
 
   const changeOpportunity = (e) => {
-    const { name, value } = e.target;
-    if (name === "startup_id") {
-      const startup = startups.find((item) => item._id === value);
-      setOpportunityForm((current) => ({
-        ...current,
-        startup_id: value,
-        startup_name: startup?.startup_name || "",
-      }));
-      return;
-    }
-    setOpportunityForm((current) => ({ ...current, [name]: value }));
-  };
+  const { name, value, files } = e.target;
+
+  // Image file
+  if (name === "image") {
+    setOpportunityForm((current) => ({
+      ...current,
+      image: files[0],
+    }));
+    return;
+  }
+
+  // Startup select
+  if (name === "startup_id") {
+    const startup = startups.find((item) => item._id === value);
+
+    setOpportunityForm((current) => ({
+      ...current,
+      startup_id: value,
+      startup_name: startup?.startup_name || "",
+    }));
+
+    return;
+  }
+
+  setOpportunityForm((current) => ({
+    ...current,
+    [name]: value,
+  }));
+};
 
   const resetStartup = () => {
     setStartupForm(emptyStartup);
@@ -153,7 +172,20 @@ export default function FounderHome() {
     e.preventDefault();
     try {
       setSaving(true);
-      const payload = { ...startupForm, founder_email: email };
+      let imageUrl = "";
+
+if (opportunityForm.image instanceof File) {
+  const uploadedImage = await imageUploader(
+    opportunityForm.image
+  );
+
+  imageUrl = imageUploader.display_url;
+}
+      const payload = {
+  ...opportunityForm,
+  image: imageUrl,
+  founder_email: email,
+};
       if (editingStartupId) {
         await apiRequest(`/api/founder/startup/${editingStartupId}`, {
           method: "PATCH",
@@ -201,33 +233,59 @@ export default function FounderHome() {
     }
   };
 
-  const submitOpportunity = async (e) => {
-    e.preventDefault();
-    try {
-      setSaving(true);
-      const payload = { ...opportunityForm, founder_email: email };
-      if (editingOpportunityId) {
-        await apiRequest(`/api/founder/opportunities/${editingOpportunityId}`, {
+ const submitOpportunity = async (e) => {
+  e.preventDefault();
+
+  try {
+    setSaving(true);
+
+    let imageUrl = "";
+
+    if (opportunityForm.image instanceof File) {
+      const uploadedImage = await imageUploader(
+        opportunityForm.image
+      );
+
+      imageUrl =
+        uploadedImage?.display_url ||
+        uploadedImage?.url ||
+        "";
+    }
+
+    const payload = {
+      ...opportunityForm,
+      image: imageUrl,
+      founder_email: email,
+    };
+
+    if (editingOpportunityId) {
+      await apiRequest(
+        `/api/founder/opportunities/${editingOpportunityId}`,
+        {
           method: "PATCH",
           body: JSON.stringify(payload),
-        });
-        success("Opportunity updated successfully.");
-      } else {
-        await apiRequest("/api/founder/opportunities", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        success("Opportunity added successfully.");
-      }
-      resetOpportunity();
-      await loadDashboard();
-      setActiveTab("manage");
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setSaving(false);
+        }
+      );
+
+      success("Opportunity updated successfully.");
+    } else {
+      await apiRequest("/api/founder/opportunities", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      success("Opportunity added successfully.");
     }
-  };
+
+    resetOpportunity();
+    await loadDashboard();
+    setActiveTab("manage");
+  } catch (error) {
+    setErrorMessage(error.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   const editOpportunity = (opportunity) => {
     setOpportunityForm({
@@ -531,7 +589,16 @@ function OpportunityForm({ form, startups, isEditing, saving, onChange, onSubmit
           </select>
         </label>
         <TextInput label="Deadline" name="deadline" type="date" value={form.deadline} onChange={onChange} required />
-        <TextInput label="Image URL" name="image" type="url" value={form.image} onChange={onChange} />
+        <label className={labelClass}>
+  Opportunity Image
+  <input
+    className={inputClass}
+    type="file"
+    accept="image/*"
+    name="image"
+    onChange={onChange}
+  />
+</label>
       </div>
       <SubmitButton saving={saving} text={isEditing ? "Update Opportunity" : "Add Opportunity"} />
     </form>
