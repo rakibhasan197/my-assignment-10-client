@@ -76,8 +76,8 @@ export default function PremiumPayment() {
       const data = await apiPost("/api/payments/checkout", {
         email: user.email,
         package_id: packageId,
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payments/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/collaborator`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/collaborator`,
       });
       if (!data.checkout_url) throw new Error("Checkout URL missing");
       window.location.href = data.checkout_url;

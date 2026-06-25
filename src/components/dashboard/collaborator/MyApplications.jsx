@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ;
 
 const statusColors = {
   Pending: { bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-200", icon: Clock },

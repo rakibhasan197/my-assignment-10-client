@@ -17,7 +17,7 @@ import { useSession } from "@/lib/auth-client";
 import { imageUploader } from "@/lib/imageUpload";
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const tabs = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -167,46 +167,44 @@ export default function FounderHome() {
     setOpportunityForm(emptyOpportunity);
     setEditingOpportunityId("");
   };
+const submitStartup = async (e) => {
+  e.preventDefault();
 
-  const submitStartup = async (e) => {
-    e.preventDefault();
-    try {
-      setSaving(true);
-      let imageUrl = "";
+  try {
+    setSaving(true);
+    setErrorMessage("");
 
-if (opportunityForm.image instanceof File) {
-  const uploadedImage = await imageUploader(
-    opportunityForm.image
-  );
+    const payload = {
+      ...startupForm,
+      founder_email: email,
+    };
 
-  imageUrl = imageUploader.display_url;
-}
-      const payload = {
-  ...opportunityForm,
-  image: imageUrl,
-  founder_email: email,
-};
-      if (editingStartupId) {
-        await apiRequest(`/api/founder/startup/${editingStartupId}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-        });
-        success("Startup updated successfully.");
-      } else {
-        await apiRequest("/api/founder/startup", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        success("Startup created successfully.");
-      }
-      resetStartup();
-      await loadDashboard();
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setSaving(false);
+    console.log("Startup Payload:", payload);
+
+    if (editingStartupId) {
+      await apiRequest(`/api/founder/startup/${editingStartupId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+
+      success("Startup updated successfully.");
+    } else {
+      await apiRequest("/api/founder/startup", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      success("Startup created successfully.");
     }
-  };
+
+    resetStartup();
+    await loadDashboard();
+  } catch (error) {
+    setErrorMessage(error.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   const editStartup = (startup) => {
     setStartupForm({

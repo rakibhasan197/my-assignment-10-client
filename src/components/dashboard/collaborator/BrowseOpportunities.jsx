@@ -22,7 +22,7 @@ useEffect(() => {
       setError("");
 
       const res = await fetch(
-        `http://localhost:8000/api/opportunities?page=${page}&limit=5`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/opportunities?page=${page}&limit=5`
       );
 
       if (!res.ok) {

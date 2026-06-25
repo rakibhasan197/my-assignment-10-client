@@ -51,7 +51,7 @@ export default function OpportunityDetailsPage() {
       };
 
       const res = await fetch(
-        "http://localhost:8000/api/applications",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/applications`,
         {
           method: "POST",
           headers: {

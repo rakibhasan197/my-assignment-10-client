@@ -20,7 +20,7 @@ export default function Overview() {
     const fetchApplications = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/api/applications/user/${user?.email}`
+         `${process.env.NEXT_PUBLIC_API_URL}/api/applications/user/${user?.email}`
         );
 
         const data = await res.json();
